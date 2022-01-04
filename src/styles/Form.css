@@ -1,0 +1,117 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400&display=swap");
+
+.form {
+  height: 100%;
+  /*   width: 100%;  */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.items-form {
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  height: 70%;
+  box-sizing: border-box;
+}
+
+.title {
+  letter-spacing: 1px;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+.items-form input {
+  background-color: transparent;
+  outline: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  width: 250px;
+  height: 30px;
+  padding: 2px;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.items-form input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.suggestions {
+  width: 258px;
+  height: auto;
+  max-height: 150px;
+  background-color: bf56bb;
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  transform: scale(0);
+  flex-direction: column;
+  padding: 5px 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  margin-top: 5px;
+  font-family: "Poppins", sans-serif;
+  transition: transform 0.2s linear;
+  transform-origin: top;
+}
+
+.suggestions.active {
+  /*    display: flex; */
+  transform: scale(1);
+}
+
+.tags-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  flex-wrap: wrap;
+  /*  max-height: 30%; */
+  width: 600px;
+  padding: 0;
+  color: #fff;
+  /*  overflow: auto; */
+  z-index: 1000;
+  position: fixed;
+  top: 65%;
+  left: 45%;
+}
+
+@media screen and (max-width: 1060px) {
+  .tags-container {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    margin-top: 50px;
+  }
+
+  .suggestions {
+    width: 100%;
+  }
+}
