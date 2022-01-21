@@ -61,30 +61,7 @@
   right: 0;
 }
 
-.suggestions {
-  width: 258px;
-  height: auto;
-  max-height: 150px;
-  background-color: bf56bb;
-  border-radius: 0 0 10px 10px;
-  display: flex;
-  transform: scale(0);
-  flex-direction: column;
-  padding: 5px 20px;
-  align-items: flex-start;
-  justify-content: flex-start;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  margin-top: 5px;
-  font-family: "Poppins", sans-serif;
-  transition: transform 0.2s linear;
-  transform-origin: top;
-}
 
-.suggestions.active {
-  /*    display: flex; */
-  transform: scale(1);
-}
 
 .tags-container {
   display: flex;

@@ -1,27 +1,40 @@
-import React from 'react';
-import '../styles/Form.css';
-import { FormData } from '../data/FormData.js';
+import React from 'react'
+import '../styles/Form.css'
+import { FormData } from '../data/FormData.js'
+import Tag from './Tag'
+import { useState } from 'react'
+import { selectedItems } from '../data/SelectedItems'
+import Suggestions from './Suggestions'
+import Suggestion from './Suggestion'
 
-import Tag from './Tag';
-import { useState } from 'react';
-import '../styles/Suggestion.css';
-import { selectedItems } from '../data/SelectedItems';
+function Form () {
+  const [tags, setTags] = useState()
+  const [suggestions, setSuggestions] = useState()
+  const [suggestionsClass, setSuggestionsClass] = useState()
 
-function Form (props) {
-  const [tags, setTags] = useState(props.tags);
+  const createSuggestion = suggestionName => {
+    return (
+      <Suggestion
+        name={suggestionName}
+        key={suggestionName}
+        onSwitchSuggestion={keyboardSelection}
+        onAddTag={createTags}
+      />
+    )
+  }
 
   const showSuggestions = e => {
-    const inputValue = e.target.value.trim();
-    const suggestions = document.getElementById('suggestions');
-    suggestions.innerHTML = ''
+    const inputValue = e.target.value.trim()
+    setSuggestions('')
 
     if (inputValue.length > 0) {
-      suggestions.classList.add('active');
+      setSuggestionsClass('active')
     } else {
-      suggestions.classList.remove('active');
+      setSuggestionsClass('')
     }
 
-    let usedItems = []
+    const usedItems = []
+    let userInputSuggestion
 
     for (const item of FormData) {
       if (
@@ -30,66 +43,36 @@ function Form (props) {
       ) {
         usedItems.push(item)
       } else {
-        /* continue; */
-        suggestions.innerHTML = ''
-        const inputSuggestion = document.createElement('span');
-        inputSuggestion.classList.add('suggestion');
-
-        inputSuggestion.setAttribute('tabindex', '-2');
-        inputSuggestion.addEventListener('keydown', keyboardSelection);
-        inputSuggestion.innerText = inputValue;
-
-        const addedTags = document.querySelectorAll('.tag');
-
-        addedTags.forEach(tag => {
-          if (tag.textContent === inputValue) {
-            inputSuggestion.classList.add('added');
-          }
-        })
-        suggestions.appendChild(inputSuggestion);
+        setSuggestions('')
+        userInputSuggestion = createSuggestion(inputValue)
       }
+
+      const sortedItems = usedItems.map(item => createSuggestion(item)).sort()
+      setSuggestions([userInputSuggestion, sortedItems])
     }
-
-    const sortedItems = usedItems.sort();
-
-    sortedItems.forEach(item => {
-      const suggestion = document.createElement('span');
-      suggestion.setAttribute('tabindex', '-2');
-      suggestion.addEventListener('keydown', keyboardSelection);
-      suggestion.innerText = item;
-      suggestion.classList.add('suggestion');
-      suggestions.appendChild(suggestion);
-    })
-
-    createTags();
   }
 
-  const createTags = () => {
-    const suggestionItems = document.querySelectorAll('.suggestion');
-    suggestionItems.forEach(suggestionItem => {
-      suggestionItem.addEventListener('click', () => {
-        if (selectedItems.has(suggestionItem.innerText)) {
-          selectedItems.delete(suggestionItem.innerText);
-          suggestionItem.classList.remove('added');
-        } else {
-          selectedItems.add(suggestionItem.innerText);
-          suggestionItem.classList.add('added');
-        }
-
-        updateTags();
-      })
-    })
+  const createTags = e => {
+    const suggestionText = e.target.innerText
+    if (selectedItems.has(suggestionText)) {
+      selectedItems.delete(suggestionText)
+      e.target.classList.remove('added')
+    } else {
+      selectedItems.add(suggestionText)
+      e.target.classList.add('added')
+    }
+    updateTags()
   }
 
   const updateTags = () => {
-    const addedSuggestions = document.querySelectorAll('.suggestion.added');
+    const tagsArray = Array.from(selectedItems)
+    const addedSuggestions = document.querySelectorAll('.suggestion.added')
 
-    let tagsArray = Array.from(selectedItems);
     addedSuggestions.forEach(suggestion => {
       if (tagsArray.includes(suggestion.textContent)) {
-        return;
+        return
       } else {
-        suggestion.classList.remove('added');
+        suggestion.classList.remove('added')
       }
     })
 
@@ -98,39 +81,53 @@ function Form (props) {
         <Tag
           name={item}
           key={tagsArray.indexOf(item)}
-          onDeleteTag={updateTags}
+          onRemoveTag={removeTag}
         />
       ))
     )
   }
 
-  const keyboardSelection = e => {
-    if (e.code === 'ArrowDown') {
-      if (!e.target.nextElementSibling) {
-        return;
-      } else {
-        e.target.nextElementSibling.focus();
+  const removeTag = e => {
+    const name = e.target.parentElement.textContent
+    if (selectedItems.has(name)) {
+      selectedItems.delete(name)
+    }
 
-        e.target.classList.remove('focused');
-        e.target.nextElementSibling.classList.add('focused');
-      }
-    } else if (e.code === 'ArrowUp') {
-      if (!e.target.previousElementSibling) {
-        return;
-      } else {
-        e.target.previousElementSibling.focus();
-        e.target.classList.remove('focused');
-        e.target.previousElementSibling.classList.add('focused');
-      }
-    } else if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-      selectedItems.add(e.target.textContent);
-      e.target.classList.add('added');
-      updateTags();
-    } else if (e.code === 'Delete') {
-      if (selectedItems.has(e.target.textContent)) {
-        selectedItems.delete(e.target.textContent);
-        updateTags();
-      }
+    updateTags()
+  }
+
+  const keyboardSelection = e => {
+    switch (e.code) {
+      case 'ArrowDown':
+        if (!e.target.nextElementSibling) {
+          return
+        } else {
+          e.target.nextElementSibling.focus()
+        }
+        break
+
+      case 'ArrowUp':
+        if (!e.target.previousElementSibling) {
+          return
+        } else {
+          e.target.previousElementSibling.focus()
+        }
+        break
+
+      case 'Enter' || 'NumpadEnter':
+        selectedItems.add(e.target.textContent)
+        e.target.classList.add('added')
+        updateTags()
+
+        break
+
+      case 'Delete':
+        if (selectedItems.has(e.target.textContent)) {
+          selectedItems.delete(e.target.textContent)
+          e.target.classList.remove('added')
+          updateTags()
+        }
+        break
     }
   }
 
@@ -138,8 +135,8 @@ function Form (props) {
     if (e.code === 'ArrowDown') {
       document.querySelector('.suggestions .suggestion').focus()
     } else if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-      selectedItems.add(e.target.value.trim());
-      const suggestions = document.querySelectorAll('.suggestion');
+      selectedItems.add(e.target.value.trim())
+      const suggestions = document.querySelectorAll('.suggestion')
 
       suggestions.forEach(suggestion => {
         if (suggestion.textContent === e.target.value) {
@@ -147,9 +144,9 @@ function Form (props) {
         }
       })
 
-      updateTags();
+      updateTags()
     } else {
-      return;
+      return
     }
   }
 
@@ -170,7 +167,10 @@ function Form (props) {
             onChange={showSuggestions}
             onKeyDown={addTypedInput}
           />
-          <div className='suggestions' id='suggestions' tabIndex='-1'></div>
+          <Suggestions
+            suggestionsContent={suggestions}
+            className={suggestionsClass}
+          />
         </div>
       </div>
 
